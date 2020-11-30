@@ -1,3 +1,0 @@
-[submodule "include/flatbuffers"]
-	path = include/flatbuffers
-	url = https://github.com/google/flatbuffers
