@@ -32,13 +32,11 @@ SET(CMAKE_PDB_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 SET(LIBL_FLAGS )
 
 # Find all source files in source dir
-FILE(GLOB_RECURSE LIBSOURCES ${PROJECT_SOURCE_DIR}/*.c**)
-FILE(GLOB_RECURSE LIBHEADERS ${PROJECT_SOURCE_DIR}/*.h**)
+FILE(GLOB_RECURSE LIBSOURCES ${PROJECT_SOURCE_DIR}/src/*.c**)
+FILE(GLOB_RECURSE LIBHEADERS ${PROJECT_SOURCE_DIR}/include/*.h**)
 
 # Define library
 ADD_LIBRARY(${LibName} STATIC ${LIBSOURCES} ${LIBHEADERS})
-ADD_DEPENDENCIES(${LibName} godot-cpp)
-ADD_DEPENDENCIES(${LibName} gdregistry)
 
 # Set target features
 TARGET_COMPILE_FEATURES(${LibName} PUBLIC cxx_std_17)
@@ -52,17 +50,9 @@ endif()
 # Include godot-cpp and other needed stuff
 TARGET_INCLUDE_DIRECTORIES(${LibName}
   PUBLIC
-  ${PROJECT_SOURCE_DIR}
-  ${SourceDir}/include
-  ${SourceDir}/include/godot-cpp/include
-  ${SourceDir}/include/godot-cpp/include/core
-  ${SourceDir}/include/godot-cpp/include/gen
+  ${PROJECT_SOURCE_DIR}/include
+  ${PROJECT_SOURCE_DIR}/flatbuffers/include
   ${VERSIONS_DIR}
-)
-
-# Include godot_headers and ignore any warnings
-TARGET_INCLUDE_DIRECTORIES(${LibName}
-  SYSTEM PUBLIC ${SourceDir}/include/godot-cpp/godot_headers
 )
 
 # Set compile flags
@@ -72,8 +62,14 @@ SET_PROPERTY(TARGET ${LibName} APPEND_STRING PROPERTY LINK_FLAGS ${LIBL_FLAGS})
 # Add this to the main target
 TARGET_INCLUDE_DIRECTORIES(${ProjectId}
    PUBLIC
-  ${PROJECT_SOURCE_DIR}
+  ${PROJECT_SOURCE_DIR}/include
+  ${PROJECT_SOURCE_DIR}/flatbuffers/include
 )
+
+SET(FLATBUFFERS_BUILD_TESTS OFF)
+SET(FLATBUFFERS_INSTALL OFF)
+ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/flatbuffers ${PROJECT_BINARY_DIR}/flatbuffers EXCLUDE_FROM_ALL)
+TARGET_LINK_LIBRARIES(${LibName} flatbuffers)
 
 # Add this as a dependency of the main project
 ADD_DEPENDENCIES(${ProjectId} ${LibName})
