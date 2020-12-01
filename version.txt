@@ -1,6 +1,6 @@
 # Set version number
 SET (_VERSION_MAJOR 0)
-SET (_VERSION_MINOR 1)
+SET (_VERSION_MINOR 2)
 SET (_VERSION_REVISION 0)
 
 ##=- Do not edit below this line -=##

@@ -4,8 +4,7 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 3.15)
 # Set name of project to current directory name
-GET_FILENAME_COMPONENT(LibDir ${CMAKE_CURRENT_SOURCE_DIR} DIRECTORY)
-GET_FILENAME_COMPONENT(LibName ${LibDir} NAME)
+GET_FILENAME_COMPONENT(LibName ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 STRING(REPLACE " " "_" LibName ${LibName})
 PROJECT(${LibName} LANGUAGES CXX)
 
@@ -33,10 +32,9 @@ SET(LIBL_FLAGS )
 
 # Find all source files in source dir
 FILE(GLOB_RECURSE LIBSOURCES ${PROJECT_SOURCE_DIR}/src/*.c**)
-FILE(GLOB_RECURSE LIBHEADERS ${PROJECT_SOURCE_DIR}/include/*.h**)
 
 # Define library
-ADD_LIBRARY(${LibName} STATIC ${LIBSOURCES} ${LIBHEADERS})
+ADD_LIBRARY(${LibName} STATIC ${LIBSOURCES})
 
 # Set target features
 TARGET_COMPILE_FEATURES(${LibName} PUBLIC cxx_std_17)
@@ -52,7 +50,12 @@ TARGET_INCLUDE_DIRECTORIES(${LibName}
   PUBLIC
   ${PROJECT_SOURCE_DIR}/include
   ${PROJECT_SOURCE_DIR}/flatbuffers/include
-  ${VERSIONS_DIR}
+  ${PROJECT_INCLUDES}
+)
+
+# Include godot_headers and ignore any warnings
+TARGET_INCLUDE_DIRECTORIES(${LibName}
+  SYSTEM PUBLIC ${SourceDir}/include/godot-cpp/godot_headers
 )
 
 # Set compile flags
@@ -68,9 +71,11 @@ TARGET_INCLUDE_DIRECTORIES(${ProjectId}
 
 SET(FLATBUFFERS_BUILD_TESTS OFF)
 SET(FLATBUFFERS_INSTALL OFF)
+SET(FLATBUFFERS_BUILD_FLATC OFF)
 ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/flatbuffers ${PROJECT_BINARY_DIR}/flatbuffers EXCLUDE_FROM_ALL)
 TARGET_LINK_LIBRARIES(${LibName} flatbuffers)
 
+ADD_DEPENDENCIES(${LibName} godot-cpp)
 # Add this as a dependency of the main project
 ADD_DEPENDENCIES(${ProjectId} ${LibName})
 
